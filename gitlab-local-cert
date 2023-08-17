@@ -1,1 +1,42 @@
-
+cd ~
+openssl rand -writerand .rnd
+chmod a+rwx ~myUser/.rnd
+cd /tmp
+mkdir essai
+openssl genrsa -out ca.key 2048
+openssl req -new -x509 -days 365 -key ca.key -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=Acme Root CA" -out ca.crt
+openssl req -newkey rsa:2048 -nodes -keyout server.key -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=*mygitlab-site.com" -out server.csr
+openssl x509 -req -extfile <(printf "subjectAltName=DNS:mygitlab-site.com") -days 365 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt
+sudo cp * /etc/gitlab/ssl
+cd /etc/gitlab/
+sudo mkdir bck-ssl
+cd ssl
+sudo mv  mygitlab-site.com.crt  mygitlab-site.com.key ../bck-ssl/
+sudo mv server.crt mygitlab-site.com.crt
+sudo mv server.key mygitlab-site.com.key
+sudo rm server.csr
+sudo gitlab-ctl restart
+sudo passwd root
+sudo vi /etc/ssh/sshd_config ( use https://www.ubuntu18.com/ssh-permitrootlogin/)
+sudo systemctl restart sshd.service
+su - root (connect as root)
+cd ~
+cd .ssh
+ssh-keygen -t rsa
+chmod 600 id_rsa
+chmod 644 id_rsa.pub
+echo > known_hosts
+chmod 600 known_hosts
+cd ..
+chmod 600 .ssh
+git clone git@mygitlab-site.com:myUser/myProject.git (tip to update the known hosts list)
+quit root user
+cd /etc/gitlab/ssl
+sudo cp ca.crt ca.pem
+sudo cp ca.pem /etc/ssl/certs/ca.pem
+su - root (connect as root)
+cd /etc/ssl/certs/
+update-ca-certificates
+quit root user
+sudo gitlab-ctl restart
+sudo gitlab-runner register --tls-ca-file=/etc/gitlab/ssl/ca.crt --url https://mygitlab-site.com/ --registration-token A_TOKEN
