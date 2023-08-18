@@ -1,0 +1,4 @@
+#if u have eror: fatal: unable to access 'https://my.gitlab/denis/demo.git/': Could not resolve host: my.gitlab
+#add to /etc/gitlab-runner/config.toml
+
+extra_hosts = ["my.gitlab:172.18.0.1"]
