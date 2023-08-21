@@ -1,0 +1,7 @@
+gitlab-runner verify
+
+### ERROR: Job failed: prepare environment: exit status 1. Check https://docs.gitlab.com/runner/shells/index.html#shell-profile-loading for more information
+
+find / -name .bash_logout
+sudo rm -r /home/gitlab-runner/.bash_logout
+sudo rm -r /home/<username>/.bash_logout
