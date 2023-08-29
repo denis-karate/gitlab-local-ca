@@ -1,0 +1,19 @@
+#ERROR: Cannot connect to the Docker daemon at tcp://docker:2375. Is the docker daemon running?
+#need add command:
+#   variables: 
+#      DOCKER_TLS_CERTDIR: ""
+#looks like:
+build docker image:
+    stage: package
+    image: docker:24.0.5
+    services:
+        - docker:24.0.5-dind 
+    variables: 
+        DOCKER_TLS_CERTDIR: ""
+    before_script:
+        - docker info
+        - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD
+
+
+
+
